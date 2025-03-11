@@ -29,42 +29,36 @@ ADMIN_SCREEN_NAME = 'admin'
 
 # 1. Connect to ODrive
 print("Finding ODrive...")
-od = find_odrive(serial_number="386037573437")  # Replace with your ODrive serial number if needed
+od = find_odrive(serial_number="386037573437")
+od.clear_errors()
 print("Found ODrive!")
 
 # 2. Assert that the brake resistor is enabled (optional)
 assert od.config.enable_brake_resistor is True, "Brake resistor not enabled!"
 
 # 3. Configure Axis 1 for current limit, velocity limit, and control mode
-ax1 = od.axis1
+ax1 = ODriveAxis(od.axis1, current_lim=10, vel_lim=10)
+ax1.set_pos(5)
 
 # Set current limit and velocity limit (You can adjust these as needed)
-ax1.motor.config.current_lim = 10  # Set motor current limit (e.g., 10 Amps)
-ax1.controller.config.vel_limit = 10000  # Set velocity limit (e.g., 10000 RPM)
-ax1.controller.config.pos_gain = 10  # Set position gain
-ax1.controller.config.vel_gain = 0.1  # Set velocity gain
+#ax1.motor.config.current_lim = 10  # Set motor current limit (e.g., 10 Amps)
+#ax1.controller.config.vel_limit = 10000  # Set velocity limit (e.g., 10000 RPM)
+#ax1.controller.config.pos_gain = 10  # Set position gain
+#ax1.controller.config.vel_gain = 0.1  # Set velocity gain
 
 # 4. Set up encoder configuration
-ax1.encoder.config.cpr = 8192  # Set counts per revolution for the encoder (adjust for your encoder)
-ax1.encoder.config.use_index = True  # Enable the index signal (if applicable)
-ax1.encoder.config.direction = 1  # Set direction (1 for clockwise, -1 for counterclockwise)
+od.axis1.encoder.config.cpr = 8192  # Set counts per revolution for the encoder (adjust for your encoder)
+#ax1.encoder.config.use_index = True  # Enable the index signal (if applicable)
+#ax1.encoder.config.direction = 1  # Set direction (1 for clockwise, -1 for counterclockwise)
 
-# 5. Start motor calibration
-print("Starting calibration...")
-ax1.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE  # Start the full calibration sequence
+#if not ax.is_calibrated():
+print("calibrating...")
+ax1.calibrate_with_current_lim(10)
 
 # Wait for calibration to finish without using time.sleep()
-while ax1.current_state != AXIS_STATE_IDLE:  # Loop until the motor is idle (calibration done)
-    pass
 
-# 6. Perform index search (only necessary if use_index is enabled)
-if ax1.encoder.config.use_index:
-    print("Performing encoder index search...")
-    ax1.requested_state = AXIS_STATE_ENCODER_INDEX_SEARCH  # Start index search
 
-    # Wait for index search to complete without using time.sleep()
-    while ax1.current_state != AXIS_STATE_IDLE:  # Loop until the motor is idle (index search done)
-        pass
+
 
 # 7. Set the motor to closed-loop control
 print("Setting motor to closed-loop control...")
@@ -72,8 +66,9 @@ ax1.requested_state = AXIS_STATE_CLOSED_LOOP_CONTROL  # Set to closed-loop contr
 
 
 # 9. Print current encoder position and velocity estimates
-print(f"Encoder position: {ax1.encoder.pos_estimate}")
-print(f"Encoder velocity: {ax1.encoder.vel_estimate}")
+print(f"Encoder position: {od.axis1.encoder.pos_estimate}")
+print(f"Encoder velocity: {od.axis1.encoder.vel_estimate}")
+dump_errors(od)
 
 
 
@@ -108,14 +103,20 @@ class MainScreen(Screen):
 
     def tog_spin_five(self):
         "spin 5 times"
-        od.ax1.set_vel_limit(5)
-        od.ax1.set_pos(5)
-        od.ax1.wait_for_motor_to_stop()
+        ax1.set_pos(5)
+        ax1.wait_for_motor_to_stop()
         print("Current Position in Turns = ", round(ax1.get_pos(), 2))
-        od.ax1.set_relative_pos(-5)
-        od.ax1.wait_for_motor_to_stop()
+        ax1.set_relative_pos(-5)
+        ax1.wait_for_motor_to_stop()
         dump_errors(od)
-        print("Move")
+        od.clear_errors()
+
+    def set_motor_vel(self,speed, acel):
+        ax1.set_ramped_vel(speed, acel)
+
+    def set_motor_acel(self,acel,speed):
+        ax1.set_ramped_vel(speed, acel)
+
 
 
     def admin_action(self):
@@ -135,6 +136,15 @@ class TrajectoryScreen(Screen):
     def switch_screen(self):
         SCREEN_MANAGER.transition.direction = "right"
         SCREEN_MANAGER.current = MAIN_SCREEN_NAME
+
+    def runTrajectory(self, pos, accel, speed, decel):
+        print("running Trajectory...")
+        ax1.set_pos_traj(pos, accel, speed, decel)
+        ax1.wait_for_motor_to_stop()
+        print("Current position in Turns = ", round(ax1.get_pos(), 2))
+        ax1.set_pos_traj(- pos, accel, speed, decel)
+        ax1.wait_for_motor_to_stop()
+        print("Current position in Turns = ", round(ax1.get_pos(), 2))
 
 
 class GPIOScreen(Screen):

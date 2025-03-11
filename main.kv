@@ -21,6 +21,48 @@
         color: 1, 1, 0, 1
         on_press: root.tog_spin_five()
 
+    Slider:
+        id: motorVel
+        orientation: 'horizontal'
+        min: 2
+        max: 15
+        step: 1
+        center_x: root.width * 0.45
+        y: root.height * 0.55
+        on_value: root.set_motor_vel(self.value, motorAcel.value)
+        sensitivity: 'handle'
+        size_hint: .5, .5
+
+    Slider:
+        id: motorAcel
+        orientation: 'horizontal'
+        min: 0.5
+        max: 5
+        step: 1
+        center_x: root.width * 0.45
+        y: root.height * 0.25
+        on_value: root.set_motor_acel(self.value, motorVel.value)
+        sensitivity: 'handle'
+        size_hint: .5, .5
+
+
+
+    Label:
+        id: lab
+        font_size: 25
+        text: 'Motor Speed: ' + str(motorVel.value)
+        color: 1, 0.5, 1, 1
+        x: root.width * -0.25
+        y: root.height * 0.3
+
+    Label:
+        id: lab2
+        font_size: 25
+        text: 'Motor Accel: ' + str(motorAcel.value)
+        color: 1, 0.5, 1, 1
+        x: root.width * -0.25
+        y: root.height * 0.0
+
     DPEAButton:
         id: left_button
         text: "<"
@@ -40,9 +82,38 @@
         id: test_button
         text:'back'
         size: 100, 100
-        pos_hint: {"center_x": 0.5, "center_y":0.5}
+        pos_hint: {"center_x": 0.85, "center_y":0.85}
         color: 0, 1, 0, 1
         on_press: root.switch_screen()
+
+    DPEAButton:
+        id: runTraj
+        text:'Run Trajectory'
+        size: 100, 100
+        pos_hint: {"center_x": 0.5, "center_y":0.5}
+        color: 0, 1, 0.5, 1
+        on_press: root.runTrajectory(pos.value, )
+
+    Label:
+        id: pos
+        font_size: 20
+        text: 'Pos: ' + str(posSlide.value)
+        color: 1, 0.5, 1, 1
+        x: root.width * -0.25
+        y: root.height * -0.35
+
+    Slider:
+        id: posSlide
+        orientation: 'horizontal'
+        min: 0.5
+        max: 5
+        step: 1
+        center_x: root.width * -0.25
+        y: root.height * -0.2
+        sensitivity: 'handle'
+        size_hint: .4, .4
+
+
 
 <GPIOScreen>:
 
