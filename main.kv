@@ -92,26 +92,83 @@
         size: 100, 100
         pos_hint: {"center_x": 0.5, "center_y":0.5}
         color: 0, 1, 0.5, 1
-        on_press: root.runTrajectory(pos.value, )
+        on_press: root.runTrajectory(posSlide.value,accelSlide.value,velSlide.value,decelSlide.value )
 
     Label:
         id: pos
         font_size: 20
         text: 'Pos: ' + str(posSlide.value)
         color: 1, 0.5, 1, 1
-        x: root.width * -0.25
+        x: root.width * -0.40
+        y: root.height * -0.35
+
+    Label:
+        id: accel
+        font_size: 20
+        text: 'Accel: ' + str(accelSlide.value)
+        color: 1, 0.5, 1, 1
+        x: root.width * -0.15
+        y: root.height * -0.35
+
+    Label:
+        id: vel
+        font_size: 20
+        text: 'Vel: ' + str(velSlide.value)
+        color: 1, 0.5, 1, 1
+        x: root.width * 0.15
+        y: root.height * -0.35
+
+    Label:
+        id: decel
+        font_size: 20
+        text: 'Decel: ' + str(decelSlide.value)
+        color: 1, 0.5, 1, 1
+        x: root.width * 0.40
         y: root.height * -0.35
 
     Slider:
         id: posSlide
         orientation: 'horizontal'
+        min: 0
+        max: 20
+        step: 1
+        center_x: root.width * 0.06
+        y: root.height * 0.1
+        sensitivity: 'handle'
+        size_hint: .2, .2
+
+    Slider:
+        id: accelSlide
+        orientation: 'horizontal'
         min: 0.5
         max: 5
-        step: 1
-        center_x: root.width * -0.25
-        y: root.height * -0.2
+        step: 0.5
+        center_x: root.width * 0.3
+        y: root.height * 0.1
         sensitivity: 'handle'
-        size_hint: .4, .4
+        size_hint: .2, .2
+
+    Slider:
+        id: velSlide
+        orientation: 'horizontal'
+        min: 0
+        max: 15
+        step: 1
+        center_x: root.width * 0.6
+        y: root.height * 0.1
+        sensitivity: 'handle'
+        size_hint: .2, .2
+
+    Slider:
+        id: decelSlide
+        orientation: 'horizontal'
+        min: 0.5
+        max: 5
+        step: 0.5
+        center_x: root.width * 0.8
+        y: root.height * 0.1
+        sensitivity: 'handle'
+        size_hint: .2, .2
 
 
 
