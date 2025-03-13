@@ -14,6 +14,7 @@ from pidev.kivy.PassCodeScreen import PassCodeScreen
 from pidev.kivy.PauseScreen import PauseScreen
 from pidev.kivy import DPEAButton
 from pidev.kivy import ImageButton
+from dpea_odrive.odrive_helpers import digital_read
 
 sys.path.append("/home/soft-dev/Documents/dpea-odrive/")
 from dpea_odrive.odrive_helpers import *
@@ -142,12 +143,23 @@ class TrajectoryScreen(Screen):
         ax1.set_pos_traj(pos, accel, speed, decel)
         ax1.wait_for_motor_to_stop()
         print("Current position in Turns = ", round(ax1.get_pos(), 2))
-        ax1.set_pos_traj(- pos, accel, speed, decel)
+        ax1.set_pos_traj(0, accel, speed, decel)
         ax1.wait_for_motor_to_stop()
         print("Current position in Turns = ", round(ax1.get_pos(), 2))
 
 
 class GPIOScreen(Screen):
+
+
+    def toggleGPIO(self):
+        pinNum = 1
+        while (pinNum <= 8):
+            read = digital_read(od, pinNum)
+            print(read)
+            #od.config.gpio_mode = GPIO_MODE_DIGITAL_PULL_UP
+            pinNum = pinNum + 1
+        #od.save_configuration()
+
     """
     Class to handle the GPIO screen and its associated touch/listening events
     """

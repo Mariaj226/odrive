@@ -182,6 +182,14 @@
         id: test_button
         text:'back'
         size: 100, 100
-        pos_hint: {"center_x": 0.5, "center_y":0.5}
+        pos_hint: {"center_x": 0.85, "center_y":0.85}
         color: 1, 0, 0, 1
         on_press: root.switch_screen()
+
+    DPEAButton:
+        id: runGPIO
+        text:'GPIO'
+        size: 100, 100
+        pos_hint: {"center_x": 0.5, "center_y":0.5}
+        color: 0, 1, 0.5, 1
+        on_press: root.toggleGPIO()
