@@ -28,35 +28,23 @@ GPIO_SCREEN_NAME = 'gpio'
 ADMIN_SCREEN_NAME = 'admin'
 
 
-# 1. Connect to ODrive
+# Connect to ODrive
 print("Finding ODrive...")
 od = find_odrive(serial_number="386037573437")
 od.clear_errors()
 print("Found ODrive!")
 
-# 2. Assert that the brake resistor is enabled (optional)
 assert od.config.enable_brake_resistor is True, "Brake resistor not enabled!"
-
-# 3. Configure Axis 1 for current limit, velocity limit, and control mode
 ax1 = ODriveAxis(od.axis1, current_lim=10, vel_lim=10)
 ax1.set_pos(5)
 
-# Set current limit and velocity limit (You can adjust these as needed)
-#ax1.motor.config.current_lim = 10  # Set motor current limit (e.g., 10 Amps)
-#ax1.controller.config.vel_limit = 10000  # Set velocity limit (e.g., 10000 RPM)
-#ax1.controller.config.pos_gain = 10  # Set position gain
-#ax1.controller.config.vel_gain = 0.1  # Set velocity gain
-
-# 4. Set up encoder configuration
-od.axis1.encoder.config.cpr = 8192  # Set counts per revolution for the encoder (adjust for your encoder)
-#ax1.encoder.config.use_index = True  # Enable the index signal (if applicable)
-#ax1.encoder.config.direction = 1  # Set direction (1 for clockwise, -1 for counterclockwise)
+#  Set up encoder configuration
+od.axis1.encoder.config.cpr = 8192
 
 #if not ax.is_calibrated():
 print("calibrating...")
 ax1.calibrate_with_current_lim(10)
 
-# Wait for calibration to finish without using time.sleep()
 
 
 
@@ -152,13 +140,39 @@ class GPIOScreen(Screen):
 
 
     def toggleGPIO(self):
-        pinNum = 1
-        while (pinNum <= 8):
-            read = digital_read(od, pinNum)
-            print(read)
-            #od.config.gpio_mode = GPIO_MODE_DIGITAL_PULL_UP
-            pinNum = pinNum + 1
-        #od.save_configuration()
+        od.config.gpio4_mode = GPIO_MODE_ANALOG_IN
+        read = analog_read(od, 4)
+        i = 0
+        while (i <= 100):
+            if(read >= 0.1):
+                ax1.set_ramped_vel(0, 3)
+            else:
+                ax1.set_ramped_vel(10,3)
+            sleep(0.1)
+            read = analog_read(od, 4)
+            i = i + 1
+        ax1.set_ramped_vel(0, 3)
+        print("Stopping")
+
+    def toggleGPIO2(self):
+        od.config.gpio3_mode = GPIO_MODE_ANALOG_IN
+        read = analog_read(od, 3)
+        i = 0
+        while(i<=10):
+            print("Value: " + str(read))
+            ax1.set_ramped_vel(read * 4, 3)
+            read = analog_read(od, 3)
+            sleep (2)
+            i = i + 1
+        ax1.set_ramped_vel(0, 3)
+        print("Stopping")
+
+
+
+
+
+
+
 
     """
     Class to handle the GPIO screen and its associated touch/listening events

@@ -188,8 +188,16 @@
 
     DPEAButton:
         id: runGPIO
-        text:'GPIO'
+        text:'Check Pin'
         size: 100, 100
-        pos_hint: {"center_x": 0.5, "center_y":0.5}
+        pos_hint: {"center_x": 0.2, "center_y":0.5}
         color: 0, 1, 0.5, 1
         on_press: root.toggleGPIO()
+
+    DPEAButton:
+        id: runGPIO2
+        text:'Check Spinny'
+        size: 100, 100
+        pos_hint: {"center_x": 0.8, "center_y":0.5}
+        color: 0, 1, 0.5, 1
+        on_press: root.toggleGPIO2()
